@@ -27,6 +27,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.burton.finance.report.ShakeToReport
 import com.burton.finance.ui.detail.DetailScreen
 import com.burton.finance.ui.feed.FeedScreen
 import com.burton.finance.ui.markets.MarketsScreen
@@ -40,6 +41,8 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    private val shakeToReport by lazy { ShakeToReport(this) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -48,6 +51,16 @@ class MainActivity : ComponentActivity() {
                 BurtonApp()
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        shakeToReport.start()
+    }
+
+    override fun onPause() {
+        shakeToReport.stop()
+        super.onPause()
     }
 }
 

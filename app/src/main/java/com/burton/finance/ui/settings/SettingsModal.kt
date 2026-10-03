@@ -1,6 +1,8 @@
 package com.burton.finance.ui.settings
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,11 +16,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.burton.finance.BuildConfig
+import com.burton.finance.report.BurtonIssues
 import com.burton.finance.data.repository.FinanceRepository
 import com.burton.finance.ui.components.FullScreenModal
 import com.burton.finance.ui.theme.BurtonCharcoal
@@ -61,24 +65,32 @@ fun SettingsModal(
             trailing = snapshot.feed.size.takeIf { it > 0 }?.toString(),
         )
         Spacer(Modifier.height(10.dp))
+        val context = LocalContext.current
         SettingsRow(
             title = "Burton Finance",
             subtitle = "About",
             trailing = BuildConfig.VERSION_NAME,
+            onLongClick = { BurtonIssues.openNewIssue(context) },
         )
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun SettingsRow(
     title: String,
     subtitle: String,
     trailing: String? = null,
+    onLongClick: (() -> Unit)? = null,
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .background(BurtonCharcoal, RoundedCornerShape(18.dp))
+            .then(
+                if (onLongClick != null) Modifier.combinedClickable(onClick = {}, onLongClick = onLongClick)
+                else Modifier,
+            )
             .padding(horizontal = 16.dp, vertical = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {

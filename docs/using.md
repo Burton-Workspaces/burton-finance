@@ -45,7 +45,11 @@ Opened from the Watchlist gear.
 | Watchlist | How many symbols are saved |
 | Markets | Boards covered |
 | Feed | Source names and current article count |
-| Burton Finance | App version from `version.txt` |
+| Burton Finance | App version from `version.txt`. Long-press files an issue. |
+
+### File an issue
+
+Shake the phone, or long-press **About** in Settings. Burton Issues opens on New issue with this app already selected. Nothing is posted until you submit; Back cancels.
 
 ## What lives on-device
 
