@@ -30,12 +30,12 @@ app/src/main/java/com/burton/finance/
   data/market/                 Yahoo Finance, CoinGecko
   data/feed/                   RSS/Atom
   data/repository/             FinanceRepository, DataStore
-  domain/                      models, catalog, formatters
+  domain/                      models, catalog, formatters, TradingView symbols
   ui/watchlist, markets, feed, detail, search, settings, components, theme
 app/src/test/java/…            parser and codec tests (no device)
 ```
 
-Parser tests cover Yahoo quote/chart/search JSON, CoinGecko markets, RSS/Atom, region suffixes, and watchlist catalog round-trip. Run those before changing network parsing.
+Parser tests cover Yahoo quote/chart/search JSON, CoinGecko markets, RSS/Atom, region suffixes, watchlist catalog round-trip, article HTML extraction, and TradingView symbol mapping. Run those before changing network parsing.
 
 ## Network while debugging
 

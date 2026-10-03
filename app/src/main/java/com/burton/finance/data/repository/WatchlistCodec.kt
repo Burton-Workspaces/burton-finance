@@ -1,6 +1,7 @@
 package com.burton.finance.data.repository
 
 import com.burton.finance.data.parse.TinyJson
+import com.burton.finance.data.parse.TinyJson.bool
 import com.burton.finance.data.parse.TinyJson.objList
 import com.burton.finance.data.parse.TinyJson.str
 import com.burton.finance.domain.AssetKind
@@ -8,6 +9,7 @@ import com.burton.finance.domain.TrackedSymbol
 
 data class StoredState(
     val watchlist: List<TrackedSymbol> = emptyList(),
+    val openArticlesInReadMode: Boolean = true,
 )
 
 object WatchlistCodec {
@@ -23,6 +25,7 @@ object WatchlistCodec {
                     "kind" to item.kind.name,
                 )
             },
+            "openArticlesInReadMode" to state.openArticlesInReadMode,
         ),
     )
 
@@ -42,6 +45,14 @@ object WatchlistCodec {
                 kind = runCatching { AssetKind.valueOf(row.str("kind")) }.getOrDefault(AssetKind.Equity),
             )
         }
-        return StoredState(watchlist = watchlist)
+        val openArticlesInReadMode = if (root.containsKey("openArticlesInReadMode")) {
+            root.bool("openArticlesInReadMode", true)
+        } else {
+            true
+        }
+        return StoredState(
+            watchlist = watchlist,
+            openArticlesInReadMode = openArticlesInReadMode,
+        )
     }
 }

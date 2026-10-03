@@ -19,9 +19,10 @@ fun <T> SegmentRow(
     selected: T,
     label: (T) -> String,
     onSelect: (T) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(bottom = 4.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),

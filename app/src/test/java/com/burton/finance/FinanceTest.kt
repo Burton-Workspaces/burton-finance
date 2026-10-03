@@ -4,6 +4,7 @@ import com.burton.finance.data.feed.FeedSource
 import com.burton.finance.data.feed.NewsFeeds
 import com.burton.finance.data.market.CoinGecko
 import com.burton.finance.data.market.YahooFinance
+import com.burton.finance.data.parse.ArticleHtml
 import com.burton.finance.data.parse.TinyJson
 import com.burton.finance.data.repository.WatchlistCodec
 import com.burton.finance.domain.AssetKind
@@ -11,6 +12,7 @@ import com.burton.finance.domain.FeedCategory
 import com.burton.finance.domain.MarketBoard
 import com.burton.finance.domain.MarketCatalog
 import com.burton.finance.domain.TrackedSymbol
+import com.burton.finance.domain.TradingViewSymbol
 import com.burton.finance.domain.assetKindFromYahoo
 import com.burton.finance.domain.formatPercent
 import com.burton.finance.domain.formatPrice
@@ -42,6 +44,59 @@ class FormatTest {
         assertEquals("United Kingdom", regionForSymbol("SHEL.L"))
         assertEquals("Crypto", regionForSymbol("ETH-USD"))
         assertEquals("Hong Kong", regionForSymbol("0700.HK"))
+    }
+}
+
+class TradingViewSymbolTest {
+    @Test
+    fun mapsYahooAndCryptoSymbols() {
+        assertEquals(
+            "NASDAQ:AAPL",
+            TradingViewSymbol.from("AAPL", "AAPL", AssetKind.Equity, "NasdaqGS"),
+        )
+        assertEquals(
+            "NYSE:IBM",
+            TradingViewSymbol.from("IBM", "IBM", AssetKind.Equity, "NYSE"),
+        )
+        assertEquals(
+            "BRK.B",
+            TradingViewSymbol.from("BRK-B", "BRK-B", AssetKind.Equity, "United States"),
+        )
+        assertEquals("TVC:SPX", TradingViewSymbol.from("^GSPC", "^GSPC", AssetKind.Index))
+        assertEquals("TVC:UKX", TradingViewSymbol.from("^FTSE", "^FTSE", AssetKind.Index))
+        assertEquals("TVC:NI225", TradingViewSymbol.from("^N225", "^N225", AssetKind.Index))
+        assertEquals("LSE:SHEL", TradingViewSymbol.from("SHEL.L", "SHEL.L", AssetKind.Equity))
+        assertEquals("TSE:7203", TradingViewSymbol.from("7203.T", "7203.T", AssetKind.Equity))
+        assertEquals("HKEX:700", TradingViewSymbol.from("0700.HK", "0700.HK", AssetKind.Equity))
+        assertEquals("XETR:SAP", TradingViewSymbol.from("SAP.DE", "SAP.DE", AssetKind.Equity))
+        assertEquals("EURONEXT:MC", TradingViewSymbol.from("MC.PA", "MC.PA", AssetKind.Equity))
+        assertEquals("EURONEXT:ASML", TradingViewSymbol.from("ASML.AS", "ASML.AS", AssetKind.Equity))
+        assertEquals("SIX:NESN", TradingViewSymbol.from("NESN.SW", "NESN.SW", AssetKind.Equity))
+        assertEquals("TSX:SHOP", TradingViewSymbol.from("SHOP.TO", "SHOP.TO", AssetKind.Equity))
+        assertEquals("ASX:BHP", TradingViewSymbol.from("BHP.AX", "BHP.AX", AssetKind.Equity))
+        assertEquals("NSE:RELIANCE", TradingViewSymbol.from("RELIANCE.NS", "RELIANCE.NS", AssetKind.Equity))
+        assertEquals("KRX:005930", TradingViewSymbol.from("005930.KS", "005930.KS", AssetKind.Equity))
+        assertEquals("BMFBOVESPA:PETR4", TradingViewSymbol.from("PETR4.SA", "PETR4.SA", AssetKind.Equity))
+        assertEquals("SSE:600519", TradingViewSymbol.from("600519.SS", "600519.SS", AssetKind.Equity))
+        assertEquals("TWSE:2330", TradingViewSymbol.from("2330.TW", "2330.TW", AssetKind.Equity))
+        assertEquals("SGX:D05", TradingViewSymbol.from("D05.SI", "D05.SI", AssetKind.Equity))
+        assertEquals(
+            "CRYPTO:BTCUSD",
+            TradingViewSymbol.from("BTC-USD", "BTC-USD", AssetKind.Crypto),
+        )
+        assertEquals(
+            "CRYPTO:ETHUSD",
+            TradingViewSymbol.from("cg:ethereum", "ETH", AssetKind.Crypto),
+        )
+    }
+
+    @Test
+    fun chartPageEmbedsSymbol() {
+        val html = TradingViewSymbol.html("NASDAQ:AAPL", "Etc/UTC")
+        assertTrue(html.contains("\"NASDAQ:AAPL\""))
+        assertTrue(html.contains("s.tradingview.com/tv.js"))
+        assertTrue(html.contains("hide_side_toolbar: false"))
+        assertTrue(!html.contains("<script src=\"javascript:"))
     }
 }
 
@@ -208,11 +263,71 @@ class WatchlistCodecTest {
         assertEquals(2, decoded.watchlist.size)
         assertEquals("Apple", decoded.watchlist[0].name)
         assertEquals(AssetKind.Crypto, decoded.watchlist[1].kind)
+        assertTrue(decoded.openArticlesInReadMode)
     }
 
     @Test
     fun emptyJson() {
         val decoded = WatchlistCodec.decode("")
         assertTrue(decoded.watchlist.isEmpty())
+        assertTrue(decoded.openArticlesInReadMode)
+    }
+
+    @Test
+    fun missingReadModeDefaultsOn() {
+        val decoded = WatchlistCodec.decode("""{"watchlist":[]}""")
+        assertTrue(decoded.openArticlesInReadMode)
+    }
+
+    @Test
+    fun persistsReadModeOff() {
+        val encoded = WatchlistCodec.encode(
+            com.burton.finance.data.repository.StoredState(openArticlesInReadMode = false),
+        )
+        assertEquals(false, WatchlistCodec.decode(encoded).openArticlesInReadMode)
+    }
+}
+
+class ArticleHtmlTest {
+    @Test
+    fun extractsArticleAndStripsChrome() {
+        val html = """
+            <html><head><title>Markets rally &amp; yields ease</title></head>
+            <body>
+              <nav>Home</nav>
+              <script>alert(1)</script>
+              <article>
+                <p>Stocks rose on Friday as Treasury yields eased.</p>
+                <p>Energy lagged while banks led the session.</p>
+              </article>
+            </body></html>
+        """.trimIndent()
+        val article = ArticleHtml.extract(html, fallbackTitle = "Fallback")
+        assertEquals("Markets rally & yields ease", article.title)
+        assertTrue(article.text.contains("Stocks rose on Friday"))
+        assertTrue(article.html.contains("Energy lagged"))
+        assertTrue(!article.html.contains("<script"))
+        assertTrue(!article.html.contains("<nav"))
+    }
+
+    @Test
+    fun usesFallbackWhenPageIsEmpty() {
+        val article = ArticleHtml.extract(
+            "<html><body></body></html>",
+            fallbackTitle = "Oil slips",
+            fallbackHtml = "<p>Crude futures fell after a build.</p>",
+        )
+        assertEquals("Oil slips", article.title)
+        assertTrue(article.text.contains("Crude futures fell"))
+    }
+
+    @Test
+    fun readerDocumentIsDarkAndEscapesTitle() {
+        val page = ArticleHtml.readerDocument("A & B", "BBC Business", "<p onclick=\"x\">Hello</p>")
+        assertTrue(page.contains("A &amp; B"))
+        assertTrue(page.contains("BBC Business"))
+        assertTrue(page.contains("#000000"))
+        assertTrue(page.contains("data-dropped="))
+        assertTrue(!page.contains("onclick="))
     }
 }

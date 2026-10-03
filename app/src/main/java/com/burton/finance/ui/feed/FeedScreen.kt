@@ -1,7 +1,5 @@
 package com.burton.finance.ui.feed
 
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -29,7 +27,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -59,6 +56,7 @@ fun FeedScreen(
 ) {
     val snapshot by viewModel.state.collectAsStateWithLifecycle()
     var filter by remember { mutableStateOf(FeedFilter.All) }
+    var openItem by remember { mutableStateOf<FeedItem?>(null) }
     val items = snapshot.feed.filter { item ->
         when (filter) {
             FeedFilter.All -> true
@@ -107,26 +105,31 @@ fun FeedScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     items(items, key = { it.id }) { item ->
-                        FeedCard(item = item)
+                        FeedCard(item = item, onOpen = { openItem = item })
                     }
                 }
             }
         }
     }
+    openItem?.let { item ->
+        ArticleBrowserModal(
+            item = item,
+            startInReadMode = snapshot.openArticlesInReadMode,
+            onExit = { openItem = null },
+        )
+    }
 }
 
 @Composable
-private fun FeedCard(item: FeedItem) {
-    val context = LocalContext.current
+private fun FeedCard(
+    item: FeedItem,
+    onOpen: () -> Unit,
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(BurtonCharcoal, RoundedCornerShape(20.dp))
-            .clickable {
-                runCatching {
-                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(item.url)))
-                }
-            }
+            .clickable(onClick = onOpen)
             .padding(16.dp),
     ) {
         Text(

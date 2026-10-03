@@ -96,6 +96,7 @@ data class FinanceSnapshot(
     val marketsLoading: Boolean = false,
     val cryptoLoading: Boolean = false,
     val feedLoading: Boolean = false,
+    val openArticlesInReadMode: Boolean = true,
     val error: String? = null,
 ) {
     fun quote(id: String): Quote? = quotes[id] ?: marketQuotes[id]

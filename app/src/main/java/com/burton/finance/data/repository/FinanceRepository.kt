@@ -46,7 +46,13 @@ class FinanceRepository @Inject constructor(
 
     private suspend fun start() {
         val stored = runCatching { prefs.load() }.getOrDefault(StoredState())
-        _state.update { it.copy(ready = true, watchlist = stored.watchlist) }
+        _state.update {
+            it.copy(
+                ready = true,
+                watchlist = stored.watchlist,
+                openArticlesInReadMode = stored.openArticlesInReadMode,
+            )
+        }
         refreshWatchlist()
         refreshFeed()
     }
@@ -106,6 +112,13 @@ class FinanceRepository @Inject constructor(
             ),
         )
         mergeQuotes(listOf(quote))
+    }
+
+    fun setOpenArticlesInReadMode(enabled: Boolean) {
+        scope.launch {
+            _state.update { it.copy(openArticlesInReadMode = enabled) }
+            persist()
+        }
     }
 
     fun remove(id: String) {
@@ -310,7 +323,12 @@ class FinanceRepository @Inject constructor(
 
     private suspend fun persist() {
         persistLock.withLock {
-            prefs.save(StoredState(watchlist = _state.value.watchlist))
+            prefs.save(
+                StoredState(
+                    watchlist = _state.value.watchlist,
+                    openArticlesInReadMode = _state.value.openArticlesInReadMode,
+                ),
+            )
         }
     }
 }

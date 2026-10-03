@@ -6,11 +6,11 @@ Signed APKs are published on [GitHub Releases](https://github.com/Burton-Workspa
 
 ## What it does
 
-- **Watchlist** — saved symbols with last price, day change, and sparkline; tap for detail; search Yahoo Finance and CoinGecko to add
+- **Watchlist** — saved symbols with last price, day change, and sparkline; tap a card for detail, tap the sparkline for a full TradingView chart; search Yahoo Finance and CoinGecko to add
 - **Markets** — United States, international exchanges (UK, Japan, Hong Kong, Europe, Canada, Australia, India, Korea, China, Taiwan, Brazil, Singapore), and CoinGecko crypto
-- **Feed** — Yahoo Finance, BBC Business, CoinDesk, Cointelegraph, plus watchlist headlines
-- **Detail** — price, day range, 52-week range, volume, market cap, sparkline, add/remove from the watchlist
-- **Settings** — saved count, feed sources, version
+- **Feed** — Yahoo Finance, BBC Business, CoinDesk, Cointelegraph, plus watchlist headlines; tap an article for an in-app reader (read mode on by default)
+- **Detail** — price, day range, 52-week range, volume, market cap, sparkline (tap for candlesticks, indicators, and drawings), add/remove from the watchlist
+- **Settings** — read mode, saved count, feed sources, version
 
 First launch hydrates the watchlist from local cache, then refreshes quotes and the feed.
 
