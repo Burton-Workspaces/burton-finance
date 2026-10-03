@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Rising sparkline -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFC8C8C8"
+        android:strokeWidth="3.2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M30,70 L42,58 L52,62 L66,44 L78,38" />
+    <!-- Last marker -->
+    <path
+        android:fillColor="#FFC8C8C8"
+        android:pathData="M78,38m-3.2,0a3.2,3.2 0,1 1,6.4 0a3.2,3.2 0,1 1,-6.4 0" />
+    <!-- Baseline -->
+    <path
+        android:fillColor="#FFC8C8C8"
+        android:pathData="M30,76h48v1.6h-48z" />
+</vector>
