@@ -29,10 +29,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.burton.finance.ui.components.ChartLaunch
+import com.burton.finance.ui.components.ChartModal
 import com.burton.finance.ui.components.EmptyStatePanel
 import com.burton.finance.ui.components.QuoteCard
 import com.burton.finance.ui.components.RoomsSkeleton
 import com.burton.finance.ui.components.cardSubtitle
+import com.burton.finance.ui.components.toChartLaunch
 import com.burton.finance.ui.search.AddSymbolModal
 import com.burton.finance.ui.settings.SettingsModal
 import com.burton.finance.ui.theme.BurtonIvory
@@ -47,6 +50,7 @@ fun WatchlistScreen(
     val snapshot by viewModel.state.collectAsStateWithLifecycle()
     var showSettings by remember { mutableStateOf(false) }
     var showAdd by remember { mutableStateOf(false) }
+    var chart by remember { mutableStateOf<ChartLaunch?>(null) }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -97,6 +101,9 @@ fun WatchlistScreen(
                             quote = quote,
                             refreshing = item.id in snapshot.refreshing,
                             onClick = { onOpenSymbol(item.id) },
+                            onChartClick = quote?.takeIf { it.sparkline.size >= 2 }?.let { q ->
+                                { chart = q.toChartLaunch() }
+                            },
                         )
                     }
                 }
@@ -111,5 +118,8 @@ fun WatchlistScreen(
             onDismiss = { showAdd = false },
             viewModel = viewModel,
         )
+    }
+    chart?.let {
+        ChartModal(launch = it, onDismiss = { chart = null })
     }
 }

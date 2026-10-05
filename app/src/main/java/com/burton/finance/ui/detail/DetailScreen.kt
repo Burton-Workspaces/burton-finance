@@ -2,6 +2,7 @@ package com.burton.finance.ui.detail
 
 import android.net.Uri
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,17 +24,25 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.burton.finance.domain.AssetKind
 import com.burton.finance.domain.MarketCatalog
 import com.burton.finance.domain.Quote
 import com.burton.finance.domain.formatCompact
 import com.burton.finance.domain.formatPercent
 import com.burton.finance.domain.formatPrice
 import com.burton.finance.domain.formatSignedPrice
+import com.burton.finance.ui.components.ChartLaunch
+import com.burton.finance.ui.components.ChartModal
+import com.burton.finance.ui.components.EmptyStatePanel
 import com.burton.finance.ui.components.Sparkline
 import com.burton.finance.ui.theme.BurtonCharcoal
 import com.burton.finance.ui.theme.BurtonDanger
@@ -56,6 +65,14 @@ fun DetailScreen(
     val name = quote?.name ?: tracked?.name ?: listing?.name ?: decoded
     val symbol = quote?.symbol ?: tracked?.symbol ?: listing?.symbol ?: decoded
     val watching = snapshot.watching(decoded) || snapshot.watching(id)
+    var chart by remember { mutableStateOf<ChartLaunch?>(null) }
+    val chartLaunch = ChartLaunch(
+        id = quote?.id ?: tracked?.id ?: listing?.id ?: decoded,
+        symbol = symbol,
+        name = name,
+        exchange = quote?.exchange ?: tracked?.exchange ?: listing?.exchange.orEmpty(),
+        kind = quote?.kind ?: tracked?.kind ?: listing?.kind ?: AssetKind.Equity,
+    )
     val changeColor = when {
         quote == null -> BurtonMute
         quote.changePercent > 0 -> BurtonSand
@@ -105,7 +122,22 @@ fun DetailScreen(
                 color = changeColor,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(120.dp),
+                    .height(140.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(BurtonCharcoal)
+                    .clickable(
+                        role = Role.Button,
+                        onClickLabel = "Open full chart",
+                        onClick = { chart = chartLaunch },
+                    )
+                    .padding(horizontal = 12.dp, vertical = 16.dp),
+            )
+        } else if (symbol.isNotBlank()) {
+            Spacer(Modifier.height(20.dp))
+            EmptyStatePanel(
+                title = "Open chart",
+                action = "Candles, indicators, and drawings",
+                onAction = { chart = chartLaunch },
             )
         }
         Spacer(Modifier.height(20.dp))
@@ -125,6 +157,9 @@ fun DetailScreen(
             Text(if (watching) "Remove from watchlist" else "Add to watchlist")
         }
         Spacer(Modifier.height(28.dp))
+    }
+    chart?.let {
+        ChartModal(launch = it, onDismiss = { chart = null })
     }
 }
 

@@ -30,10 +30,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.burton.finance.domain.MarketBoard
 import com.burton.finance.domain.MarketCatalog
+import com.burton.finance.ui.components.ChartLaunch
+import com.burton.finance.ui.components.ChartModal
 import com.burton.finance.ui.components.EmptyStatePanel
 import com.burton.finance.ui.components.QuoteCard
 import com.burton.finance.ui.components.RoomsSkeleton
 import com.burton.finance.ui.components.SegmentRow
+import com.burton.finance.ui.components.toChartLaunch
 import com.burton.finance.ui.theme.BurtonIvory
 import com.burton.finance.ui.theme.BurtonSand
 
@@ -44,6 +47,7 @@ fun MarketsScreen(
 ) {
     val snapshot by viewModel.state.collectAsStateWithLifecycle()
     var board by remember { mutableStateOf(MarketBoard.US) }
+    var chart by remember { mutableStateOf<ChartLaunch?>(null) }
     LaunchedEffect(board) {
         viewModel.refresh(board)
     }
@@ -95,6 +99,9 @@ fun MarketsScreen(
                                     quote = quote,
                                     refreshing = snapshot.cryptoLoading,
                                     onClick = { onOpenSymbol(quote.id) },
+                                    onChartClick = quote.takeIf { it.sparkline.size >= 2 }?.let { q ->
+                                        { chart = q.toChartLaunch() }
+                                    },
                                 )
                             }
                         }
@@ -130,6 +137,9 @@ fun MarketsScreen(
                                     quote = quote,
                                     refreshing = snapshot.marketsLoading,
                                     onClick = { onOpenSymbol(listing.id) },
+                                    onChartClick = quote?.takeIf { it.sparkline.size >= 2 }?.let { q ->
+                                        { chart = q.toChartLaunch() }
+                                    },
                                 )
                             }
                         }
@@ -137,5 +147,8 @@ fun MarketsScreen(
                 }
             }
         }
+    }
+    chart?.let {
+        ChartModal(launch = it, onDismiss = { chart = null })
     }
 }

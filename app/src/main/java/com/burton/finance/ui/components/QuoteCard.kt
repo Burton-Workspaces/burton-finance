@@ -16,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.burton.finance.domain.Quote
@@ -35,6 +36,7 @@ fun QuoteCard(
     quote: Quote?,
     refreshing: Boolean,
     onClick: () -> Unit,
+    onChartClick: (() -> Unit)? = null,
 ) {
     val changeColor = when {
         quote == null -> BurtonMute
@@ -74,7 +76,18 @@ fun QuoteCard(
                 color = changeColor,
                 modifier = Modifier
                     .width(72.dp)
-                    .height(36.dp),
+                    .height(36.dp)
+                    .then(
+                        if (onChartClick != null) {
+                            Modifier.clickable(
+                                role = Role.Button,
+                                onClickLabel = "Open full chart",
+                                onClick = onChartClick,
+                            )
+                        } else {
+                            Modifier
+                        },
+                    ),
             )
         }
         Column(horizontalAlignment = Alignment.End) {
