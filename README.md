@@ -2,7 +2,7 @@
 
 An Android markets client. Track stocks and indices worldwide, follow cryptocurrency, and read a markets feed. There is no cloud account and no brokerage login.
 
-Signed APKs are published on [GitHub Releases](https://github.com/Burton-Workspaces/burton-finance/releases). Droidify / F-Droid: [burton-sonos-fdroid](https://github.com/Burton-Workspaces/burton-sonos-fdroid) (`https://burton-workspaces.github.io/burton-sonos-fdroid/fdroid/repo`).
+Signed APKs are published on [GitHub Releases](https://github.com/Burton-Workspaces/burton-finance/releases). Droidify / F-Droid: [burton-app-dist](https://github.com/Burton-Workspaces/burton-app-dist) (`https://burton-workspaces.github.io/burton-app-dist/fdroid/repo`).
 
 ## What it does
 
