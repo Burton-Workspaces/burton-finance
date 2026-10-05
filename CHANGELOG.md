@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.2.0](https://github.com/Burton-Workspaces/burton-finance/compare/v1.1.0...v1.2.0) (2026-10-05)
+
+
+### Features
+
+* open TradingView charts from watchlist, markets, and detail ([379e24d](https://github.com/Burton-Workspaces/burton-finance/commit/379e24dbd01f77c2019547c407ede54a47adba12))
+
+
+### Bug Fixes
+
+* add missing TradingViewSymbol for unit tests ([2eee285](https://github.com/Burton-Workspaces/burton-finance/commit/2eee285df93702c10978ff3e4f2b2fa9fbf6bcd9))
+
 ## [1.1.0](https://github.com/Burton-Workspaces/burton-finance/compare/v1.0.0...v1.1.0) (2026-10-03)
 
 
